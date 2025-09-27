@@ -15,8 +15,12 @@ WORKDIR /app
 # Copiar archivos de dependencias primero (para mejor cache de Docker)
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --only=production && npm cache clean --force
+# Instalar dependencias (con npm ci si existe package-lock.json, sino npm install)
+RUN if [ -f package-lock.json ]; then \
+        npm ci --omit=dev && npm cache clean --force; \
+    else \
+        npm install --omit=dev && npm cache clean --force; \
+    fi
 
 # Copiar código fuente
 COPY . .
